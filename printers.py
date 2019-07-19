@@ -51,7 +51,7 @@ for tag in soup.find_all('td', "alignRight valignTop"):
 			color = 'magenta'
 		else:
 			color = 'yellow'
-			
+
 		level.append([color, percent])
 		count = count + 1
 
