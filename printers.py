@@ -36,13 +36,20 @@ for i in range(len(urls)):
         soup = readHtml(urls[i])
 
 for tag in soup.find_all('td', "alignRight valignTop"):
-    for i in tag.contents:
-        percent = hpSimplify(i)
-        if count == 0:
-            
-        level.append([count,percent])
-        count = count + 1
+	for i in tag.contents:
+		percent = hpSimplify(i)
+		if count == 0:
+			color = 'black'
+		elif count == 1:
+			color = 'cyan'
+		elif count == 2:
+			color = 'magenta'
+		else:
+			color = 'yellow'
+			
+		level.append([color, percent])
+		count = count + 1
 
 for i in soup.body.findAll(text=re.compile('Cartridge')):
-    print(simplify(i))
+    print(hpSimplify(i))
 print(level)
