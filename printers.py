@@ -7,13 +7,15 @@ import pandas as pd
 
 brands = []
 urls = []
+level = []
+count = 0
 
 def readHtml(link):
     response = http.request('GET', link)
     bSoup = BeautifulSoup(response.data, 'lxml')
     return bSoup
 
-def simplify(i):
+def hpSimplify(i):
     i = i.replace(" ","")
     i = i.replace("\n","")
     i = i.replace("†","")
@@ -30,16 +32,16 @@ for i in df.index:
     urls.append(url)
 
 for i in range(len(urls)):
-    if brands[i] = 'HP':
-        soup = 
+    if brands[i] == 'HP':
+        soup = readHtml(urls[i])
 
-x = 0
-level = []
 for tag in soup.find_all('td', "alignRight valignTop"):
     for i in tag.contents:
-        y = simplify(i)
-        level.append([x,y])
-        x = x + 1
+        percent = hpSimplify(i)
+        if count == 0:
+            
+        level.append([count,percent])
+        count = count + 1
 
 for i in soup.body.findAll(text=re.compile('Cartridge')):
     print(simplify(i))
