@@ -8,6 +8,7 @@ import pandas as pd
 brands = []
 urls = []
 level = []
+hpToner = []
 count = 0
 
 def readHtml(link):
@@ -16,10 +17,14 @@ def readHtml(link):
     return bSoup
 
 def hpSimplify(i):
-    i = i.replace(" ","")
-    i = i.replace("\n","")
-    i = i.replace("†","")
-    return i
+	i = i.replace(" ","")
+	i = i.replace("\n","")
+	i = i.replace("†","")
+	i = i.replace("Order‭410A","")
+	i = i.replace("(","")
+	i = i.replace(")","")
+	i = i.replace("\u202c","")
+	return i
 
 http = urllib3.PoolManager()
 
@@ -50,6 +55,10 @@ for tag in soup.find_all('td', "alignRight valignTop"):
 		level.append([color, percent])
 		count = count + 1
 
-for i in soup.body.findAll(text=re.compile('Cartridge')):
-    print(hpSimplify(i))
+for i in soup.body.findAll(text=re.compile('CF')):
+	hpToner.append(hpSimplify(i))
+
+for i in range(len(level)):
+	level[i].append(hpToner[i])
+
 print(level)
