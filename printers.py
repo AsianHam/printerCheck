@@ -4,12 +4,15 @@ import urllib3
 import re
 from bs4 import BeautifulSoup
 import pandas as pd
+from win10toast import ToastNotifier
 
 brands = []
 urls = []
 level = []
 hpToner = []
 count = 0
+
+toaster = ToastNotifier()
 
 def readHtml(link):
     response = http.request('GET', link)
@@ -62,3 +65,5 @@ for i in range(len(level)):
 	level[i].append(hpToner[i])
 
 print(level)
+
+toaster.show_toast("Sample Notification", "Python is awesome!!")
