@@ -26,44 +26,71 @@ def hpSimplify(i):
 	i = i.replace(" ","")
 	i = i.replace("\n","")
 	i = i.replace("†","")
-	i = i.replace("Order‭410A","")
+	i = i.replace("CF410A","")
+	i = i.replace("CF411A","")
+	i = i.replace("CF412A","")
+	i = i.replace("CF413A","")
 	i = i.replace("(","")
 	i = i.replace(")","")
+	#i = i.replace("Order", "")
 	i = i.replace("\u202c","")
+	i = i.replace("\u202d","")
+	i = i.replace("%","")
 	return i
 
-def hpToners(soup):
+def hpToners(soup, ip, location):
 	count = 0
 	level = []
+
+	for i in soup.body.findAll(text=re.compile('Order')):
+		hpToner.append(hpSimplify(i))
+
 	for tag in soup.find_all('td', "alignRight valignTop"):
 		for i in tag.contents:
 			percent = hpSimplify(i)
 			if count == 0:
-				color = 'black'
+				color = 'Black'
 			elif count == 1:
-				color = 'cyan'
+				color = 'Cyan'
 			elif count == 2:
-				color = 'magenta'
+				color = 'Magenta'
 			else:
-				color = 'yellow'
+				color = 'Yellow'
 
-			level.append([color, percent])
+			if percent == "\xa0" or int(percent) <= 10:
+				text = color + " is low/empty at " + str(location) + " (" + str(ip) + ") "
+				text = text + "\n" + hpToner[count]
+				toaster.show_toast("WARNING", text, duration=10)
+				level.append([color, percent])
+			else:
+				level.append([color, percent])
+
 			count = count + 1
-
-	for i in soup.body.findAll(text=re.compile('CF')):
-		hpToner.append(hpSimplify(i))
 
 	for i in range(len(level)):
 		level[i].append(hpToner[i])
 
 	return level
 
-def ricohToners(soup):
+def ricohToners(soup, ip, location):
 	count = 0
 	level = []
-	for tag in soup.find_all("img", "ver-algn-m"):
+	temp = []
+	for tag in soup.find_all("dl"):
 		for i in tag.contents:
-			print(i)
+			if i != "\n":
+				temp.append(i)
+
+	for i in range(len(temp)):
+		if "Black" in temp[i]:
+			if "Status OK" not in temp[i+1]:
+				toaster.show_toast("WARNING", "Black toner is low in" + str(location) + " (" + str(ip) + ") ")
+				level.append(["Black", "Warning"])
+			else:
+				level.append(["Black", "Status OK"])
+			break
+
+	return level
 			
 for i in df.index:
 	brands.append(df['Brand'][i])
@@ -78,11 +105,9 @@ for i in df.index:
 for i in range(len(urls)):
 	soup = readHtml(urls[i])
 	if brands[i] == 'HP':
-		toner.append(hpToners(soup))
+		toner.append(hpToners(soup, df['IP'][i], df['Location'][i]))
 	elif brands[i] == "Ricoh":
-		toner.append(ricohToners(soup))
+		toner.append(ricohToners(soup, df['IP'][i], df['Location'][i]))
 
 
 print(toner)
-
-toaster.show_toast("Sample Notification", "Python is awesome!!")
