@@ -77,6 +77,7 @@ def ricohToners(soup, ip, location):
 	level = []
 	temp = []
 	stuff = []
+	colorType = False
 
 	for tag in soup.find_all("img"):
 		stuff.append(tag)
@@ -85,8 +86,12 @@ def ricohToners(soup, ip, location):
 		for i in tag.contents:
 			if i != "\n":
 				temp.append(i)
-	
-	if "Cyan" in temp:
+				if "Cyan" in i:
+					colorType = True
+
+	print(colorType)
+
+	if colorType == True:
 		for i in range(len(stuff)):
 			try:
 				if 'bdr-1px-666' in stuff[i]['class']:
