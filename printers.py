@@ -89,8 +89,6 @@ def ricohToners(soup, ip, location):
 				if "Cyan" in i:
 					colorType = True
 
-	print(colorType)
-
 	if colorType == True:
 		for i in range(len(stuff)):
 			try:
