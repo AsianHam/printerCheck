@@ -32,10 +32,10 @@ def hpSimplify(i):
 	i = i.replace("CF413A","")
 	i = i.replace("(","")
 	i = i.replace(")","")
-	#i = i.replace("Order", "")
 	i = i.replace("\u202c","")
 	i = i.replace("\u202d","")
 	i = i.replace("%","")
+	i = i.replace("*","")
 	return i
 
 def hpToners(soup, ip, location):
@@ -57,15 +57,18 @@ def hpToners(soup, ip, location):
 			else:
 				color = 'Yellow'
 
-			if percent == "\xa0" or int(percent) <= 10:
-				text = color + " is low/empty at " + str(location) + " (" + str(ip) + ") "
-				text = text + "\n" + hpToner[count]
-				toaster.show_toast("WARNING", text, duration=10)
-				#level.append([color, percent])
-			#else:
-				#level.append([color, percent])
+			try:
+				if percent == "\xa0" or int(percent) <= 10:
+					text = color + " is low/empty at " + str(location) + " (" + str(ip) + ") "
+					text = text + "\n" + hpToner[count]
+					toaster.show_toast("WARNING", text, duration=15)
+					#level.append([color, percent])
+				#else:
+					#level.append([color, percent])
 
-			count = count + 1
+				count = count + 1
+			except:
+				print(location, ip)
 
 	#for i in range(len(level)):
 		#level[i].append(hpToner[i])
@@ -106,7 +109,7 @@ def ricohToners(soup, ip, location):
 
 					if  ricohPercent <= 10:
 						text = color + " is low/empty at " + str(location) + " (" + str(ip) + ") "
-						toaster.show_toast("WARNING", text)
+						toaster.show_toast("WARNING", text, duration = 15)
 						#level.append([color, "Warning"])
 					#else:
 						#level.append(["Wrong"])
@@ -120,7 +123,7 @@ def ricohToners(soup, ip, location):
 		for i in range(len(temp)):
 			if "Black" in temp[i]:
 				if "Status OK" not in temp[i+1]:
-					toaster.show_toast("WARNING", "Black toner is low in " + str(location) + " (" + str(ip) + ") ")
+					toaster.show_toast("WARNING", "Black toner is low in " + str(location) + " (" + str(ip) + ") ", duration = 15)
 					#level.append(["Black", "Warning"])
 				#else:
 					#level.append(["Black", "Status OK"])
