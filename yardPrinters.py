@@ -1,8 +1,6 @@
 from multiprocessing import Pool
-from win10toast import ToastNotifier
 import multiprocessing as mp
 import pandas as pd
-import paramiko
 import time
 import os
 import re
@@ -13,7 +11,7 @@ counter = 0
 
 toaster = ToastNotifier()
 
-df = pd.read_excel('printerIP.xlsx', sheet_name = 'Sheet1')
+df = pd.read_excel('yardPrinterIP.xlsx', sheet_name = 'Sheet1')
 
 def ricohToners(cmd, ip, location):
 	black = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.1").read()
@@ -31,35 +29,22 @@ def ricohToners(cmd, ip, location):
 			
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 			if int(cLevel) < 10:
 				text = "Cyan is low/empty at " + ip + " " + location
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
-			if int(mLevel) < 10:
+				print(text)
 				text = "Magenta is low/empty at " + ip + " " + location
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 			if int(yLevel) < 10:
 				text = "Yellow is low/empty at " + ip + " " + location
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 		else:
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 	else:
 		text = "Check " + ip + " " + location
-		toaster.show_toast("Timeout Error", text, duration = 15, threaded = True)
-		while toaster.notification_active():
-					time.sleep(0.1)
+		print(text)
 
 def hpToners(cmd, ip, location):
 	black = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.1").read()
@@ -79,38 +64,26 @@ def hpToners(cmd, ip, location):
 
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location + "\n" + order
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 
 			if int(cLevel) < 10:
 				text = "Cyan is low/empty at " + ip + " " + location + "\n" + order
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 
 			if int(mLevel) < 10:
 				text = "Magenta is low/empty at " + ip + " " + location + "\n" + order
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)
+				print(text)
 
 			if int(yLevel) < 10:
 				text = "Yellow is low/empty at " + ip + " " + location + "\n" + order
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)	
+				print(text)
 		else:
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location + "\n" + order
-				toaster.show_toast("WARNING", text, duration=15, threaded=True)
-				while toaster.notification_active():
-					time.sleep(0.1)	
+				print(text)
 	else:
 		text = "Check " + ip + " " + location
-		toaster.show_toast("Timeout Error", text, duration = 15, threaded = True)
-		while toaster.notification_active():
-			time.sleep(0.1)
+		print(text)
 
 def main(cmds):
 	cmd = cmds[0]
@@ -122,41 +95,14 @@ def main(cmds):
 	elif brands == 'HP':
 		hpToners(cmd, str(df['IP'][i]), str(df['Location'][i]))
 
-def ssh():
-	COMP = '128.59.251.93'
-	
-	ssh = paramiko.SSHClient()
-	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	ssh.connect(COMP, 22, username = 'sps', password = 'mjikirk7', allow_agent = False)
-	
-	stdin = ssh.exec_command("")
-	
-	conn = ssh.invoke_shell()
-	
-	output = conn.recv(1000)
-	conn.send("\n")
-	conn.send("python3 yardPrinters.py\n")
-	
-	time.sleep(15)
-	rawData = conn.recv(1000000)
-	rawData = rawData.decode("ascii").strip("\n")
-	
-	dataTemp = rawData.splitlines()
-	data = dataTemp[4:-1]
-	
-	for i in data:
-		text = str(i[:-16] + "\n" + i[-16:])
-		print(text)
-		toaster.show_toast("WARNING", text, duration = 15, threaded = True)
-		while toaster.notification_active():
-			time.sleep(0.1)
-
 if __name__ == "__main__":
+	startTime = time.time()
+
 	for i in df.index:
 		brands.append(df['Brand'][i])
 		ip = df['IP'][i]
 		if brands[i] == 'Ricoh':
-			cmd = "snmpwalk -v1 -c public " + ip 
+			cmd = "snmpwalk -v1 -c public " + ip
 			cmds.append([cmd, counter, str(brands[i])])
 		elif brands[i] == 'HP':
 			cmd = "snmpwalk -v1 -c public " + ip
@@ -167,5 +113,6 @@ if __name__ == "__main__":
 		records = p.map(main, cmds)
 		p.terminate()
 		p.join()
-		
-	ssh()
+
+	print("Finished")
+	print("--- %s seconds ---" % (time.time() - startTime))
