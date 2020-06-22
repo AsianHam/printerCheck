@@ -14,19 +14,23 @@ toaster = ToastNotifier()
 df = pd.read_excel('yardPrinterIP.xlsx', sheet_name = 'Sheet1')
 
 def ricohToners(cmd, ip, location):
+	#Reads Black toner levels
 	black = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.1").read()
 	bLevel = re.sub("[^0-9]", "", black[-4:-1])
 
 	if str(black):
+		#Checks if printer is a color printer
 		cyan = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.3").read()
 		cLevel = re.sub("[^0-9]", "", cyan[-4:-1])
 
 		if str(cyan):
+			#Read remaining toner levels if it is a color printer
 			magenta = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.4").read()
 			mLevel = re.sub("[^0-9]", "", magenta[-4:-1])
 			yellow = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.5").read()
 			yLevel = re.sub("[^0-9]", "", yellow[-4:-1])
 			
+			#Prints to command line if the toner levels are below 10%
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location
 				print(text)
@@ -47,21 +51,25 @@ def ricohToners(cmd, ip, location):
 		print(text)
 
 def hpToners(cmd, ip, location):
+	#Reads Black toner levels and toner type
 	black = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.1").read()
 	bLevel = re.sub("[^0-9]", "", black[-4:-1])
 	order = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.6.1.1").read()
 	order = order[-6:-2]
 	
 	if str(black):
+		#Checks if printer is a color printer
 		cyan = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.2").read()
 		cLevel = re.sub("[^0-9]", "", cyan[-4:-1])
 
 		if str(cyan):
+			#Read remaining toner levels if it is a color printer
 			magenta = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.3").read()
 			mLevel = re.sub("[^0-9]", "", magenta[-4:-1])
 			yellow = os.popen(cmd + " 1.3.6.1.2.1.43.11.1.1.9.1.4").read()
 			yLevel = re.sub("[^0-9]", "", yellow[-4:-1])
 
+			#Prints to command line with toner type if the toner levels are below 10%
 			if int(bLevel) < 10:
 				text = "Black is low/empty at " + ip + " " + location + "\n" + order
 				print(text)
@@ -90,6 +98,7 @@ def main(cmds):
 	i = cmds[1]
 	brands = cmds[2]
 
+	#Checks to see if printer is a Ricoh or an HP printer
 	if brands == 'Ricoh':
 		ricohToners(cmd, str(df['IP'][i]), str(df['Location'][i]))
 	elif brands == 'HP':

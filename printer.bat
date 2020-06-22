@@ -1,2 +1,2 @@
-cd C:\Users\abo2114\Documents\GitHub\printerCheck
+cd /d %~dp0
 python newPrinters.py
